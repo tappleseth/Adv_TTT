@@ -34,22 +34,7 @@ app.controller('cheap_ctrl',function($scope,$http){
 	$scope.playerTurn = true;
 	$scope.bottomMsg = "Elastic Beanstalk + Springboot = It Just Kind Of Works"
 	
-	$http.post('http://cheapttt.us-east-1.elasticbeanstalk.com/board?boardLength=3&humanGoesFirst=true').
-	then(function(response){
-		$scope.tv = [];
-		var tileInfoArray = response.data.tiles;
-		$scope.boardID = response.data.id;
-		for (var i = 0; i < tileInfoArray.length; i++){
-			var tileOwner = tileInfoArray[i];
-			$scope.tv[i] = tileOwner;
-		}
-		$(".h3").text("(This is game # " + String(response.data.id) + ")");
-	});
-	
-	//TODO less copy paste! only really need one new line to unfreeze the board :/
-	$scope.resetClick = function(){
-		$http.post('http://cheapttt.us-east-1.elasticbeanstalk.com/board?boardLength=3&humanGoesFirst=true').
-		then(function(response){
+	$scope.handlePost = function(response){
 			$scope.tv = [];
 			var tileInfoArray = response.data.tiles;
 			$scope.boardID = response.data.id;
@@ -58,9 +43,20 @@ app.controller('cheap_ctrl',function($scope,$http){
 				$scope.tv[i] = tileOwner;
 			}
 			$(".h3").text("(This is game # " + String(response.data.id) + ")");
+	}
+
+	$http.post('http://cheapttt.us-east-1.elasticbeanstalk.com/board?boardLength=3&humanGoesFirst=true').
+	then(function(response){
+		$scope.handlePost(response);
+	});
+	
+	$scope.resetClick = function(){
+		$http.post('http://cheapttt.us-east-1.elasticbeanstalk.com/board?boardLength=3&humanGoesFirst=true').
+		then(function(response){
+			$scope.handlePost(response);
 			$scope.playerTurn = true;
 			$scope.bottomMsg = "All systems reset OK for exciting new game+."
-	});
+		});
 	}
 	
 	$scope.tileClick = function(tileNumber){
