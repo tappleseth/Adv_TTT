@@ -1,0 +1,35 @@
+<!doctype html>
+<html ng-app="cheap_app">
+	<head>
+		<title>CheapieQuiq TTT</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.3/angular.min.js"></script>
+    	<script src="ttt.js"></script>
+		<link rel="stylesheet" href="ttt.css"/>
+	</head>
+
+	<body ng-controller="cheap_ctrl">
+		<div class="top">
+			<div class="h1"><p>CheapiQuiq TicTacToe</p></div>
+			<div class="h2"><p>I know nobody asked, but you are X. Click the board to be bored.</p></div>
+			<div class="h3"></div>
+		</div>
+		<div class="middle">
+			<div class="board">
+				<div class="tile" id="tile0" ng-click="tileClick('0')"><div><p>{{tv[0]}}</p></div></div>
+				<div class="tile" id="tile1" ng-click="tileClick('1')"><div><p>{{tv[1]}}</p></div></div>
+				<div class="tile" id="tile2" ng-click="tileClick('2')"><div><p>{{tv[2]}}</p></div></div>
+				<div class="tile" id="tile3" ng-click="tileClick('3')"><div><p>{{tv[3]}}</p></div></div>
+				<div class="tile" id="tile4" ng-click="tileClick('4')"><div><p>{{tv[4]}}</p></div></div>
+				<div class="tile" id="tile5" ng-click="tileClick('5')"><div><p>{{tv[5]}}</p></div></div>
+				<div class="tile" id="tile6" ng-click="tileClick('6')"><div><p>{{tv[6]}}</p></div></div>
+				<div class="tile" id="tile7" ng-click="tileClick('7')"><div><p>{{tv[7]}}</p></div></div>
+				<div class="tile" id="tile8" ng-click="tileClick('8')"><div><p>{{tv[8]}}</p></div></div>
+			</div>
+		</div>
+		<div class="bottom">
+			<div class="reset" ng-click="resetClick()"><p>Click to Reset</p></div>
+			<div class="h2">{{bottomMsg}}</div>
+		</div>
+	</body>
+</html>
