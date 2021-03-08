@@ -1,4 +1,4 @@
-package ttt;
+package ttt.DTO;
 
 
 public class BoardResponse {

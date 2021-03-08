@@ -1,7 +1,10 @@
-package ttt;
+package ttt.Controllers;
 
 
 import com.amazonaws.regions.Regions;
+import ttt.DTO.*;
+import ttt.Services.MoveRequestValidator;
+
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.*;
@@ -34,12 +37,15 @@ public class TTT_Controller {
 	Table boardTable = null;
 	Table configTable = null;
 	
-	public TTT_Controller() {
+	MoveRequestValidator moveValidator;
+	
+	public TTT_Controller(MoveRequestValidator moveValidator) {
 		client = AmazonDynamoDBClientBuilder.standard()
     			.withRegion(Regions.US_EAST_1).build();
 	    dynamoDB = new DynamoDB(client);
 	    boardTable = dynamoDB.getTable("CheapTTT");
 	    configTable = dynamoDB.getTable("Records");
+	    this.moveValidator = moveValidator;
 	}
 	
 	
@@ -159,33 +165,19 @@ public class TTT_Controller {
 	public MoveResponse board(@RequestParam(name = "boardID", defaultValue="-1") String boardID,
 			@RequestParam(name="tileNumber", defaultValue="-1") String tileNumber,
 		@RequestParam(name="avatar",defaultValue="_") Character avatar){
-		
 		int bId = -1;
-		try {
+		int nextTile = -1;
+		boolean isValid = moveValidator.isValidMove(boardID, tileNumber);
+		if (isValid) {
 			bId = Integer.parseInt(boardID);
-		}
-		catch (Exception ex){}
-		
-		if (bId == -1) {
-			//uhhhh
+			nextTile = Integer.parseInt(tileNumber);
 		}
 		
 		String[] oldBoard = getBoardFromDB(bId);
-		
-		boolean isValid = true;
-		
 		if (oldBoard == null){
 			isValid = false;
 		}
 		
-		int nextTile = -1;
-		
-		try { 
-			nextTile = Integer.parseInt(tileNumber); 
-		}
-		catch (Exception ex) { 
-			isValid = false;
-		}
 		
 		avatar = Character.toUpperCase(avatar);
 		
