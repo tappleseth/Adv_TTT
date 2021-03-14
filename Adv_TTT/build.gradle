@@ -1,57 +1,43 @@
+plugins {
+	id 'org.springframework.boot' version '2.3.9.RELEASE'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	
+}
+
+group = 'ADV_TTT'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
 repositories {
-    mavenCentral()
+	mavenCentral()
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:2.0.5.RELEASE")
-		classpath "io.spring.gradle:dependency-management-plugin:1.0.3.RELEASE"
-    }
-}
-
-apply plugin: 'java'
-apply plugin: 'eclipse'
-apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
-apply plugin: 'io.spring.dependency-management'
-
-dependencyManagement {
-    imports {
-        mavenBom 'com.amazonaws:aws-java-sdk-bom:1.11.228'
-    }
-}
-
-test {
-    useJUnitPlatform()
+ext {
+	set('springCloudVersion', "Hoxton.SR10")
 }
 
 dependencies {
-	
-	//AWS stuff
-	compile 'com.amazonaws:aws-java-sdk-s3'
-    compile files('libs/com.amazonaws.eclipse.dynamodb_1.0.0.v201805311643.jar')
-	compile files('libs/com.amazonaws.eclipse.javasdk_1.11.248.jar')
-    //com.amazonaws.services.dynamodbv2.
-    compile("org.springframework.boot:spring-boot-starter-web")
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-    compile("org.springframework.boot:spring-boot-devtools")
-	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testImplementation group: 'org.junit.jupiter', 
-    name: 'junit-jupiter', version: '5.6.0'
-    testImplementation 'org.mockito:mockito-inline:3.7.7'
-    testImplementation 'org.mockito:mockito-junit-jupiter:3.7.7'
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws-jdbc'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk-dynamodb', version: '1.11.974'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation('org.springframework.boot:spring-boot-starter-test') {
+		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+	}
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+    testRuntimeOnly "org.junit.platform:junit-platform-commons:1.7.0"
 }
 
-bootJar {
-	baseName='ttt'
-    version =  '0.1.0'
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
-
-
-
+test {
+	useJUnitPlatform()
+}

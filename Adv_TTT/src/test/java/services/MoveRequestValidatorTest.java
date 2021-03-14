@@ -1,7 +1,8 @@
 package services;
 
-import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.*;
 
 import ttt.Services.MoveRequestValidator;
 
@@ -35,6 +36,6 @@ public class MoveRequestValidatorTest{
 		Boolean actualReturn = validator.isValidMove(boardId, tileId);
 		
 		// assert
-		Assert.assertEquals(expectedReturn, actualReturn);
+		assertEquals(expectedReturn, actualReturn);
 	}
 }
