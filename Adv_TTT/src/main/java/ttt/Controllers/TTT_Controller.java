@@ -55,9 +55,7 @@ public class TTT_Controller {
         var boardDimension = Integer.parseInt(boardLength);
         var playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
         var newBoard = makeBoard(boardDimension);
-        
         var newBoardId = _boardSaver.saveBoardToDataService(newBoard, "X");
-
 		return new BoardResponse(
 				newBoardId,
 				boardDimension,
