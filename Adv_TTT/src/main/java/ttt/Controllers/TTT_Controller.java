@@ -1,7 +1,7 @@
 package ttt.Controllers;
 
 
-import ttt.DTO.*;
+import ttt.Model.*;
 import ttt.Services.BoardFactory;
 import ttt.Services.BoardGetter;
 import ttt.Services.BoardSaver;

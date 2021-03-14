@@ -1,4 +1,4 @@
-package ttt.DTO;
+package ttt.Model;
 
 
 public class BoardResponse {
