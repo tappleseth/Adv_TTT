@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MoveRequestValidator{
 	
-	public boolean isValidMove(String boardId, String tileId) {
+	public boolean isValidRequest(String boardId, String tileId) {
 		try {
 			Integer.parseInt(boardId);
 			Integer.parseInt(tileId);

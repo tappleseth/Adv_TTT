@@ -33,7 +33,7 @@ public class MoveRequestValidatorTest{
 		MoveRequestValidator validator = new MoveRequestValidator();
 		
 		// act
-		Boolean actualReturn = validator.isValidMove(boardId, tileId);
+		Boolean actualReturn = validator.isValidRequest(boardId, tileId);
 		
 		// assert
 		assertEquals(expectedReturn, actualReturn);

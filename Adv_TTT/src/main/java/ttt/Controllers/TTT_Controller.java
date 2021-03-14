@@ -74,7 +74,7 @@ public class TTT_Controller {
 		@RequestParam(name="avatar",defaultValue="_") Character avatar){
 		int bId = -1;
 		int nextTile = -1;
-		boolean isValid = _moveValidator.isValidMove(boardID, tileNumber);
+		boolean isValid = _moveValidator.isValidRequest(boardID, tileNumber);
 		if (isValid) {
 			bId = Integer.parseInt(boardID);
 			nextTile = Integer.parseInt(tileNumber);
