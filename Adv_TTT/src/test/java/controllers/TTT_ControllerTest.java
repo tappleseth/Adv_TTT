@@ -85,6 +85,7 @@ public class TTT_ControllerTest{
 				new MoveRequestValidator(),
 				new BoardSaver(dataService, serializer),
 				new BoardUpdater(dataService, serializer),
-				new BoardGetter(dataService, new BoardDeserializer()));
+				new BoardGetter(dataService, new BoardDeserializer()),
+				new BoardFactory());
 	}
 }

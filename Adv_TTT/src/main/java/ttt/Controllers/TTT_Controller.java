@@ -2,6 +2,7 @@ package ttt.Controllers;
 
 
 import ttt.DTO.*;
+import ttt.Services.BoardFactory;
 import ttt.Services.BoardGetter;
 import ttt.Services.BoardSaver;
 import ttt.Services.BoardUpdater;
@@ -23,16 +24,19 @@ public class TTT_Controller {
 	private final BoardSaver _boardSaver;
 	private final BoardUpdater _boardUpdater;
 	private final BoardGetter _boardGetter;
+	private final BoardFactory _boardFactory;
 	
 	public TTT_Controller(
 			MoveRequestValidator moveValidator,
 			BoardSaver boardSaver,
 			BoardUpdater boardUpdater,
-			BoardGetter boardGetter) {
+			BoardGetter boardGetter,
+			BoardFactory boardFactory) {
 	    _moveValidator = moveValidator;
 	    _boardSaver = boardSaver;
 	    _boardUpdater = boardUpdater;
 	    _boardGetter = boardGetter;
+	    _boardFactory = boardFactory;
 	}
 	
 	@CrossOrigin
@@ -54,7 +58,7 @@ public class TTT_Controller {
                              @RequestParam(name="humanGoesFirst",defaultValue="true") String humanGoesFirst) {
         var boardDimension = Integer.parseInt(boardLength);
         var playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
-        var newBoard = makeBoard(boardDimension);
+        var newBoard = _boardFactory.CreateGameBoard(boardDimension);
         var newBoardId = _boardSaver.saveBoardToDataService(newBoard, "X");
 		return new BoardResponse(
 				newBoardId,
@@ -125,16 +129,6 @@ public class TTT_Controller {
 		tryUpdateBoard(board, foeMove,avatar);
 		return foeMove;
 	}
-	
-	
-
-    private String[] makeBoard(int boardLength){
-        String[] board = new String[boardLength*boardLength];
-        for (int i = 0; i < boardLength*boardLength; i++){
-            board[i] = "_";
-        }
-        return board;
-    }
 	
 	private boolean tryUpdateBoard(String[] board, int tile, String avatar){
 		if (tile < 0 || tile >= board.length) return false;
