@@ -38,25 +38,14 @@ public class TTT_Controller {
 	@CrossOrigin
 	@GetMapping("/board")
 	public BoardResponse board(@RequestParam(name="boardID",defaultValue="-1") String boardID) {
-		int bId = -1;
-		try {
-			bId = Integer.parseInt(boardID);
-		}
-		catch (Exception ex) {}
-		
-		if (bId == -1) {
-			//TODO log
-			//SPRING back to your feet and return new board instead
-			return board("3","true");
-		}
-		
-		String[] savedBoard = _boardGetter.getBoardFromDataService(bId);
-		
-    	return new BoardResponse(bId,(int)Math.sqrt(savedBoard.length),true,savedBoard);
-	}
-	
-	private void updateBoard(int boardID, String[] board) {
-		_boardUpdater.updateBoard(boardID, board);
+		var boardId = Integer.parseInt(boardID);
+		var currentBoard = _boardGetter.getBoardFromDataService(boardId);
+		var humanGoesFirst = true;
+    	return new BoardResponse(
+    			boardId,
+    			(int)Math.sqrt(currentBoard.length),
+    			humanGoesFirst,
+    			currentBoard);
 	}
 	
 	@CrossOrigin
@@ -121,7 +110,7 @@ public class TTT_Controller {
 				gameOver = true;
 			}
 		}
-			updateBoard(bId,oldBoard);
+			_boardUpdater.updateBoard(bId,oldBoard);
 			return new MoveResponse(opponentTile,"O", isValid,oldBoard, gameOver, winnerChar);
 		}
 		return new MoveResponse(-1,"_", false,oldBoard, false, "_");
