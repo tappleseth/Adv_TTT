@@ -20,19 +20,19 @@ import java.util.*;
 @CrossOrigin
 public class TTT_Controller {
 
-	private final MoveRequestValidator _moveValidator;
+	private final MoveRequestValidator _moveRequestValidator;
 	private final BoardSaver _boardSaver;
 	private final BoardUpdater _boardUpdater;
 	private final BoardGetter _boardGetter;
 	private final BoardFactory _boardFactory;
 	
 	public TTT_Controller(
-			MoveRequestValidator moveValidator,
+			MoveRequestValidator moveRequestValidator,
 			BoardSaver boardSaver,
 			BoardUpdater boardUpdater,
 			BoardGetter boardGetter,
 			BoardFactory boardFactory) {
-	    _moveValidator = moveValidator;
+	    _moveRequestValidator = moveRequestValidator;
 	    _boardSaver = boardSaver;
 	    _boardUpdater = boardUpdater;
 	    _boardGetter = boardGetter;
@@ -74,7 +74,7 @@ public class TTT_Controller {
 		@RequestParam(name="avatar",defaultValue="_") Character avatar){
 		int bId = -1;
 		int nextTile = -1;
-		boolean isValid = _moveValidator.isValidRequest(boardID, tileNumber);
+		boolean isValid = _moveRequestValidator.isValidRequest(boardID, tileNumber);
 		if (isValid) {
 			bId = Integer.parseInt(boardID);
 			nextTile = Integer.parseInt(tileNumber);
