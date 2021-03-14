@@ -82,7 +82,7 @@ app.controller('cheap_ctrl',function($scope,$http){
 		then(function(response){
 			//computer makes move
 			var foeNumber = response.data.tileNumber;
-			var isValid = response.data.isValid;
+			//var isValid = response.data.isValid;
 			$scope.tv[foeNumber] = $scope.foeAvatar;
 			
 			if (response.data.gameOver){

@@ -1,29 +1,16 @@
 package ttt.Controllers;
 
 
-import com.amazonaws.regions.Regions;
 import ttt.DTO.*;
+import ttt.Services.BoardGetter;
+import ttt.Services.BoardSaver;
+import ttt.Services.BoardUpdater;
 import ttt.Services.MoveRequestValidator;
-
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
-import com.amazonaws.services.dynamodbv2.document.*;
-import com.amazonaws.services.dynamodbv2.document.spec.*;
-import com.amazonaws.services.dynamodbv2.document.utils.ValueMap;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.GetItemRequest;
-import com.amazonaws.services.dynamodbv2.model.GetItemResult;
-
-import org.springframework.stereotype.Controller;
-
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.concurrent.atomic.AtomicLong;
 
 import java.util.*;
 
@@ -31,44 +18,21 @@ import java.util.*;
 @RestController
 @CrossOrigin
 public class TTT_Controller {
-	
-	AmazonDynamoDB client = null;
-	DynamoDB dynamoDB = null;
-	Table boardTable = null;
-	Table configTable = null;
-	
-	MoveRequestValidator moveValidator;
-	
-	public TTT_Controller(MoveRequestValidator moveValidator) {
-		client = AmazonDynamoDBClientBuilder.standard()
-    			.withRegion(Regions.US_EAST_1).build();
-	    dynamoDB = new DynamoDB(client);
-	    boardTable = dynamoDB.getTable("CheapTTT");
-	    configTable = dynamoDB.getTable("Records");
-	    this.moveValidator = moveValidator;
-	}
-	
-	
-	private String[] getBoardFromDB(int boardID) {
 
-    	GetItemSpec spec = new GetItemSpec().withPrimaryKey("BoardID",boardID);
-    
-    	Item test = null;
-    	try {
-    		System.out.println("Attempting to read god damned item GameID:" + boardID);
-    		test = boardTable.getItem(spec);
-    		System.out.println("Got item with board val: " + test.getString("BoardStatus"));
-    	}
-    	catch (Exception ex) {
-    		System.out.println("Failed with exception " + ex.getMessage());
-    		//SPRING back to your feet and return new board instead
-			return makeBoard(3);
-    	}
-    	
-    	if (test == null) return makeBoard(3);
-    	
-    	String[] savedBoard = makeBoard(test.getString("BoardStatus"));
-    	return savedBoard;
+	private final MoveRequestValidator _moveValidator;
+	private final BoardSaver _boardSaver;
+	private final BoardUpdater _boardUpdater;
+	private final BoardGetter _boardGetter;
+	
+	public TTT_Controller(
+			MoveRequestValidator moveValidator,
+			BoardSaver boardSaver,
+			BoardUpdater boardUpdater,
+			BoardGetter boardGetter) {
+	    _moveValidator = moveValidator;
+	    _boardSaver = boardSaver;
+	    _boardUpdater = boardUpdater;
+	    _boardGetter = boardGetter;
 	}
 	
 	@CrossOrigin
@@ -86,78 +50,30 @@ public class TTT_Controller {
 			return board("3","true");
 		}
 		
-		String[] savedBoard = getBoardFromDB(bId);
+		String[] savedBoard = _boardGetter.getBoardFromDataService(bId);
 		
     	return new BoardResponse(bId,(int)Math.sqrt(savedBoard.length),true,savedBoard);
 	}
 	
-	private String[] makeBoard(String deserializeMe) {
-		return deserializeMe.split(",");
-	}
-	
-	private String serializeBoard(String[] serializeMe) {
-		StringBuilder sb = new StringBuilder();
-		for (String s : serializeMe) {
-			sb.append(s + ",");
-		}
-		sb.deleteCharAt(sb.length()-1);
-		return sb.toString();
-	}
-	
 	private void updateBoard(int boardID, String[] board) {
-		
-		String bs = serializeBoard(board);
-    	UpdateItemSpec uSpec = new UpdateItemSpec().withPrimaryKey("BoardID",boardID)
-    			.withUpdateExpression("set BoardStatus = :a")
-    			.withValueMap(new ValueMap().withString(":a",bs));
-    	boardTable.updateItem(uSpec);
-	}
-	
-	private int writeBoard(String[] board, String avatar) {
-		
-		String boardStr = serializeBoard(board);
-		int bID = -1;
-		try {
-	    	GetItemSpec spec = new GetItemSpec().withPrimaryKey("ConfigID",1);
-	    	Item test = configTable.getItem(spec);
-	    	int oldID = test.getInt("GamesPlayed");
-	    	
-	    	//increment
-	    	bID = oldID + 1;
-	    	
-	    	//update count of game played
-	    	UpdateItemSpec uSpec = new UpdateItemSpec().withPrimaryKey("ConfigID",1)
-	    			.withUpdateExpression("set GamesPlayed = :a")
-	    			.withValueMap(new ValueMap().withNumber(":a",bID));
-	    	configTable.updateItem(uSpec);
-	    	
-	    	//save board
-	    	boardTable.putItem(new Item().withPrimaryKey("BoardID",bID)
-	    			.withString("BoardStatus", boardStr)
-	    			.withBoolean("GameOver",false)
-	    			.withString("PlayerAvatar","X")
-	    			.withString("Winner","_"));
-	    	
-		} catch (Exception ex) {
-			System.out.println("Exception in writeBoard: " + ex.getMessage());
-			return -1;
-		}
-		return bID;
+		_boardUpdater.updateBoard(boardID, board);
 	}
 	
 	@CrossOrigin
     @PostMapping("/board")
     public BoardResponse board(@RequestParam(name="boardLength", defaultValue="3") String boardLength,
                              @RequestParam(name="humanGoesFirst",defaultValue="true") String humanGoesFirst) {
-
-
-        int bl =  Integer.parseInt(boardLength);
-        boolean hf = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
-        String[] newBoard = makeBoard(bl);
+        var boardDimension = Integer.parseInt(boardLength);
+        var playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
+        var newBoard = makeBoard(boardDimension);
         
-        int boardID = writeBoard(newBoard,"X");
+        var newBoardId = _boardSaver.saveBoardToDataService(newBoard, "X");
 
-		return new BoardResponse(boardID,bl,hf,newBoard);
+		return new BoardResponse(
+				newBoardId,
+				boardDimension,
+				playerGoesFirst,
+				newBoard);
     }
 	
 	@CrossOrigin
@@ -167,13 +83,13 @@ public class TTT_Controller {
 		@RequestParam(name="avatar",defaultValue="_") Character avatar){
 		int bId = -1;
 		int nextTile = -1;
-		boolean isValid = moveValidator.isValidMove(boardID, tileNumber);
+		boolean isValid = _moveValidator.isValidMove(boardID, tileNumber);
 		if (isValid) {
 			bId = Integer.parseInt(boardID);
 			nextTile = Integer.parseInt(tileNumber);
 		}
 		
-		String[] oldBoard = getBoardFromDB(bId);
+		String[] oldBoard = _boardGetter.getBoardFromDataService(bId);
 		if (oldBoard == null){
 			isValid = false;
 		}
@@ -212,7 +128,6 @@ public class TTT_Controller {
 	}
 	
 	private int getFoeMove(String[] board, String avatar){
-		int bl = (int)Math.sqrt(board.length);
 		ArrayList<Integer> remainingMoves = new ArrayList<Integer>();
 		for(int i = 0; i < board.length; i++){
 			if (board[i].equals("_")) remainingMoves.add(i);
