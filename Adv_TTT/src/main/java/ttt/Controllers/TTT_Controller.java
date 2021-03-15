@@ -1,42 +1,51 @@
 package ttt.Controllers;
 
-
 import ttt.Model.*;
 import ttt.Services.BoardFactory;
 import ttt.Services.BoardGetter;
 import ttt.Services.BoardSaver;
 import ttt.Services.BoardUpdater;
+import ttt.Services.GameStateFactory;
 import ttt.Services.MoveRequestValidator;
+import ttt.Services.MoveResponseFactory;
+import ttt.Services.MoveValidator;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
-
-
 @RestController
 @CrossOrigin
 public class TTT_Controller {
 
 	private final MoveRequestValidator _moveRequestValidator;
+	private final MoveValidator _moveValidator;
 	private final BoardSaver _boardSaver;
 	private final BoardUpdater _boardUpdater;
 	private final BoardGetter _boardGetter;
 	private final BoardFactory _boardFactory;
+	private final GameStateFactory _gameStateFactory;
+	private final MoveResponseFactory _moveResponseFactory;
 	
 	public TTT_Controller(
 			MoveRequestValidator moveRequestValidator,
+			MoveValidator moveValidator,
 			BoardSaver boardSaver,
 			BoardUpdater boardUpdater,
 			BoardGetter boardGetter,
-			BoardFactory boardFactory) {
+			BoardFactory boardFactory,
+			GameStateFactory gameStateFactory,
+			MoveResponseFactory moveResponseFactory) {
 	    _moveRequestValidator = moveRequestValidator;
+	    _moveValidator = moveValidator;
 	    _boardSaver = boardSaver;
 	    _boardUpdater = boardUpdater;
 	    _boardGetter = boardGetter;
 	    _boardFactory = boardFactory;
+	    _gameStateFactory = gameStateFactory;
+	    _moveResponseFactory = moveResponseFactory;
 	}
 	
 	@CrossOrigin
@@ -54,8 +63,9 @@ public class TTT_Controller {
 	
 	@CrossOrigin
     @PostMapping("/board")
-    public BoardResponse board(@RequestParam(name="boardLength", defaultValue="3") String boardLength,
-                             @RequestParam(name="humanGoesFirst",defaultValue="true") String humanGoesFirst) {
+    public BoardResponse board(
+    		@RequestParam(name="boardLength", defaultValue="3") String boardLength,
+    		@RequestParam(name="humanGoesFirst",defaultValue="true") String humanGoesFirst) {
         var boardDimension = Integer.parseInt(boardLength);
         var playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
         var newBoard = _boardFactory.CreateGameBoard(boardDimension);
@@ -69,144 +79,23 @@ public class TTT_Controller {
 	
 	@CrossOrigin
 	@PutMapping("/board")
-	public MoveResponse board(@RequestParam(name = "boardID", defaultValue="-1") String boardID,
+	public MoveResponse board(
+			@RequestParam(name = "boardID", defaultValue="-1") String boardID,
 			@RequestParam(name="tileNumber", defaultValue="-1") String tileNumber,
-		@RequestParam(name="avatar",defaultValue="_") Character avatar){
-		int bId = -1;
-		int nextTile = -1;
-		boolean isValid = _moveRequestValidator.isValidRequest(boardID, tileNumber);
-		if (isValid) {
-			bId = Integer.parseInt(boardID);
-			nextTile = Integer.parseInt(tileNumber);
-		}
-		
-		String[] oldBoard = _boardGetter.getBoardFromDataService(bId);
-		if (oldBoard == null){
-			isValid = false;
-		}
-		
-		
-		avatar = Character.toUpperCase(avatar);
-		
-		if (isValid) isValid = tryUpdateBoard(oldBoard, nextTile, avatar.toString());
-		
-		if (isValid){
-		GameOutcome state = CheckGameStatus(oldBoard, nextTile,avatar.toString());
-		
-		boolean gameOver = false;
-		String winnerChar = "_";
-		int opponentTile = -1;
-		
-		if (state == GameOutcome.EveryoneLoses){
-			gameOver = true;
-		}
-		else if (state == GameOutcome.SomebodyWins){
-			gameOver = true;
-			winnerChar = avatar.toString();
-		}
-		else {
-			opponentTile = getFoeMove(oldBoard, "O");
-			GameOutcome gs2 = CheckGameStatus(oldBoard, opponentTile,"O");
-			if (gs2 != GameOutcome.Null){
-				winnerChar = "O";
-				gameOver = true;
-			}
-		}
-			_boardUpdater.updateBoard(bId,oldBoard);
-			return new MoveResponse(opponentTile,"O", isValid,oldBoard, gameOver, winnerChar);
-		}
-		return new MoveResponse(-1,"_", false,oldBoard, false, "_");
-	}
-	
-	private int getFoeMove(String[] board, String avatar){
-		ArrayList<Integer> remainingMoves = new ArrayList<Integer>();
-		for(int i = 0; i < board.length; i++){
-			if (board[i].equals("_")) remainingMoves.add(i);
-		}
-		
-		Random rand = new Random();
-		int foeMove = remainingMoves.get(rand.nextInt(remainingMoves.size()));
-		tryUpdateBoard(board, foeMove,avatar);
-		return foeMove;
-	}
-	
-	private boolean tryUpdateBoard(String[] board, int tile, String avatar){
-		if (tile < 0 || tile >= board.length) return false;
-		board[tile] = avatar;
-		return true;
-	}
-	
-	public class GameState {
-		public int[] rowScore = null;
-		public int[] colScore = null;
-		public int diag1 = 0;
-		public int diag2 = 0;
-		public int remainingMoves = 0;
-		
-		public GameState(String[] board) {
-			
-			remainingMoves = board.length;
-			int bl = (int)Math.sqrt(board.length);
-			rowScore = new int[bl];
-			colScore = new int[bl];
-			for (int tile = 0; tile < board.length; tile++) {
-				updateScore(board,tile,bl);
-			}
-		}
-		
-		private void updateScore(String[] board, int tile, int bl){
-			
-			if (board[tile].equals("_")) return;
-			
-			//resolve tile to row/col
-			
-			//for example, tile 4
-			int col = tile / bl;
-			int row = tile % bl;
-			
-			int pt = board[tile].equals("X") ? 1 : -1;
-			
-			rowScore[row] += pt;
-			colScore[col] += pt;
-			
-			if (row == col || (row + col == bl-1)){
-				if ((row <= bl/2 && col <= bl/2)||
-				(row >= bl/2 && col >= bl/2)){
-					diag1 += pt;
-				}
-				if ((row >= bl/2 && col <= bl/2) || (row <= bl/2 && col >= bl/2)){
-					diag2 += pt;
-				}
-			}
-		
-			remainingMoves--;
-		}
-	}
-	
-	
-	
-	private GameOutcome CheckGameStatus(String[] board, int tile, String avatar){
-		
-		int bl = (int)Math.sqrt(board.length);
-		int col = tile / bl;
-		int row = tile % bl;
-		
-		GameState gs = new GameState(board);
-		
-		int pt = avatar.equals("X") ? 1 : -1;
-		
-		int target = bl*pt;
-		
-		//if winner, reset x5 score members
-		if (gs.rowScore[row] == target || gs.colScore[col] == target || gs.diag1 == target || gs.diag2 == target){
-			return GameOutcome.SomebodyWins;
-		}
-		if (gs.remainingMoves <= 0) return GameOutcome.EveryoneLoses;
-		return GameOutcome.Null;
-	}
-
-
-	public enum GameOutcome {
-		Null,SomebodyWins,EveryoneLoses;
+			@RequestParam(name="avatar",defaultValue="_") Character avatar){
+		var isValid = _moveRequestValidator.isValidRequest(boardID, tileNumber);
+		if (!isValid)
+			return _moveResponseFactory.fromError("Invalid request format");
+		var boardId = Integer.parseInt(boardID);
+		var playerTileNumber = Integer.parseInt(tileNumber);
+		var oldBoard = _boardGetter.getBoardFromDataService(boardId);
+		if (oldBoard == null)
+			return _moveResponseFactory.fromError("Board not found on server");
+		if (!_moveValidator.isValidMove(oldBoard, playerTileNumber))
+			return _moveResponseFactory.fromError("Missing or occupied tile");
+		var playerAvatar = Character.toString(Character.toUpperCase(avatar));
+		var gameState = _gameStateFactory.getNextGameState(oldBoard, playerTileNumber, playerAvatar);
+		_boardUpdater.updateBoard(boardId, gameState.getCurrentBoard());
+		return _moveResponseFactory.fromGameState(gameState);
 	}
 }

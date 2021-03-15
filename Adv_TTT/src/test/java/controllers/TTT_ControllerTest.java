@@ -26,9 +26,9 @@ public class TTT_ControllerTest{
 		var response = controller.board(String.valueOf(_gameId), "7", 'X');
 		
 		// assert
+		assertTrue(response.getIsValid());
 		assertEquals("X", response.getWinner());
 		assertTrue(response.getGameOver());
-		assertTrue(response.getIsValid());
 	}
 	
 	@Test
@@ -41,9 +41,9 @@ public class TTT_ControllerTest{
 		var response = controller.board(String.valueOf(_gameId), "8", 'X');
 		
 		// assert
+		assertTrue(response.getIsValid());
 		assertEquals("O", response.getWinner());
 		assertTrue(response.getGameOver());
-		assertTrue(response.getIsValid());
 	}
 	
 	@Test
@@ -56,7 +56,7 @@ public class TTT_ControllerTest{
 		var response = controller.board(String.valueOf(_gameId), "3", 'X');
 		
 		// assert
-		assertEquals("_", response.getWinner());
+		assertEquals("", response.getWinner());
 		assertFalse(response.getGameOver());
 		assertTrue(response.getIsValid());
 	}
@@ -71,7 +71,7 @@ public class TTT_ControllerTest{
 		var response = controller.board(String.valueOf(_gameId), "19", 'X');
 				
 		// assert
-		assertEquals("_", response.getWinner());
+		assertEquals("", response.getWinner());
 		assertFalse(response.getGameOver());
 		assertFalse(response.getIsValid());
 	}
@@ -81,11 +81,17 @@ public class TTT_ControllerTest{
 		when(dataService.addBoard(Mockito.any(String.class))).thenReturn(_gameId);
 		when(dataService.getBoardStatus(_gameId)).thenReturn(board);
 		var serializer = new BoardSerializer();
+		var gameStateFactory = new GameStateFactory(
+				new RandomComputerStrategy(),
+				new GameScoreKeeper());
 		return new TTT_Controller(
 				new MoveRequestValidator(),
+				new MoveValidator(),
 				new BoardSaver(dataService, serializer),
 				new BoardUpdater(dataService, serializer),
 				new BoardGetter(dataService, new BoardDeserializer()),
-				new BoardFactory());
+				new BoardFactory(),
+				gameStateFactory,
+				new MoveResponseFactory());
 	}
 }
