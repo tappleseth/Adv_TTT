@@ -7,6 +7,8 @@ import ttt.Model.GameState;
 @Service
 public class GameStateFactory{
 	
+	public static final String DefaultComputerAvatar = "O";
+	
 	private final ComputerStrategy _computerStrategy;
 	private final GameScoreKeeper _scoreKeeper;
 	
@@ -24,8 +26,8 @@ public class GameStateFactory{
 		var lastTile = nextTile;
 		if (!gameOver) {
 			var computerTileMove = _computerStrategy.getNextTileNumber(gameBoard);
-			gameBoard[computerTileMove] = "O";
-			lastAvatar = "O";
+			gameBoard[computerTileMove] = DefaultComputerAvatar;
+			lastAvatar = DefaultComputerAvatar;
 			lastTile = computerTileMove;
 		}
 		var winningAvatar = "";
