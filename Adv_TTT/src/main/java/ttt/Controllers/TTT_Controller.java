@@ -51,9 +51,9 @@ public class TTT_Controller {
 	@CrossOrigin
 	@GetMapping("/board")
 	public BoardResponse board(@RequestParam(name="boardID",defaultValue="-1") String boardID) {
-		var boardId = Integer.parseInt(boardID);
-		var currentBoard = _boardGetter.getBoardFromDataService(boardId);
-		var humanGoesFirst = true;
+		int boardId = Integer.parseInt(boardID);
+		String[] currentBoard = _boardGetter.getBoardFromDataService(boardId);
+		boolean humanGoesFirst = true;
     	return new BoardResponse(
     			boardId,
     			(int)Math.sqrt(currentBoard.length),
@@ -66,10 +66,10 @@ public class TTT_Controller {
     public BoardResponse board(
     		@RequestParam(name="boardLength", defaultValue="3") String boardLength,
     		@RequestParam(name="humanGoesFirst",defaultValue="true") String humanGoesFirst) {
-        var boardDimension = Integer.parseInt(boardLength);
-        var playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
-        var newBoard = _boardFactory.CreateGameBoard(boardDimension);
-        var newBoardId = _boardSaver.saveBoardToDataService(newBoard, "X");
+        int boardDimension = Integer.parseInt(boardLength);
+        boolean playerGoesFirst = Boolean.parseBoolean(humanGoesFirst.toLowerCase());
+        String[] newBoard = _boardFactory.CreateGameBoard(boardDimension);
+        int newBoardId = _boardSaver.saveBoardToDataService(newBoard, "X");
 		return new BoardResponse(
 				newBoardId,
 				boardDimension,
@@ -83,18 +83,18 @@ public class TTT_Controller {
 			@RequestParam(name = "boardID", defaultValue="-1") String boardID,
 			@RequestParam(name="tileNumber", defaultValue="-1") String tileNumber,
 			@RequestParam(name="avatar",defaultValue="_") Character avatar){
-		var isValid = _moveRequestValidator.isValidRequest(boardID, tileNumber);
+		boolean isValid = _moveRequestValidator.isValidRequest(boardID, tileNumber);
 		if (!isValid)
 			return _moveResponseFactory.fromError("Invalid request format");
-		var boardId = Integer.parseInt(boardID);
-		var playerTileNumber = Integer.parseInt(tileNumber);
-		var oldBoard = _boardGetter.getBoardFromDataService(boardId);
+		int boardId = Integer.parseInt(boardID);
+		int playerTileNumber = Integer.parseInt(tileNumber);
+		String[] oldBoard = _boardGetter.getBoardFromDataService(boardId);
 		if (oldBoard == null)
 			return _moveResponseFactory.fromError("Board not found on server");
 		if (!_moveValidator.isValidMove(oldBoard, playerTileNumber))
 			return _moveResponseFactory.fromError("Missing or occupied tile");
-		var playerAvatar = Character.toString(Character.toUpperCase(avatar));
-		var gameState = _gameStateFactory.getNextGameState(oldBoard, playerTileNumber, playerAvatar);
+		String playerAvatar = Character.toString(Character.toUpperCase(avatar));
+		GameState gameState = _gameStateFactory.getNextGameState(oldBoard, playerTileNumber, playerAvatar);
 		_boardUpdater.updateBoard(boardId, gameState.getCurrentBoard());
 		return _moveResponseFactory.fromGameState(gameState);
 	}

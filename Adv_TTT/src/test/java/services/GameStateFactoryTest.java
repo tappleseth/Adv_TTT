@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import ttt.Model.GameState;
 import ttt.Services.DebugComputerStrategy;
 import ttt.Services.GameScoreKeeper;
 import ttt.Services.GameStateFactory;
@@ -18,13 +19,13 @@ public class GameStateFactoryTest{
 	@Test
 	public void givenCertainPlayerWin_createGameState_yieldsPlayerWin() {
 		// arrange
-		var board = new String[] {"_"};
-		var factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
-		var playerAvatar = "X";
-		var expectedBoard = new String[] {playerAvatar};
+		String[] board = new String[] {"_"};
+		GameStateFactory factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
+		String playerAvatar = "X";
+		String[] expectedBoard = new String[] {playerAvatar};
 		
 		// act
-		var gameState = factory.getNextGameState(board, 0, playerAvatar);
+		GameState gameState = factory.getNextGameState(board, 0, playerAvatar);
 		
 		// assert
 		assertTrue(gameState.getIsGameOver());
@@ -36,14 +37,14 @@ public class GameStateFactoryTest{
 	@Test
 	public void givenPlayerWinAndComputerWinsOnNextMove_createGameState_yieldsPlayerWin() {
 		// arrange
-		var board = new String[] {"O","X","O","O","X","O","_","_","_"};
-		var factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
-		var playerAvatar = "X";
-		var playerMove = 7;
-		var expectedBoard = new String[] {"O","X","O","O","X","O","_","X","_"};
+		String[] board = new String[] {"O","X","O","O","X","O","_","_","_"};
+		GameStateFactory factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
+		String playerAvatar = "X";
+		int playerMove = 7;
+		String[] expectedBoard = new String[] {"O","X","O","O","X","O","_","X","_"};
 
 		// act
-		var gameState = factory.getNextGameState(board, playerMove, playerAvatar);
+		GameState gameState = factory.getNextGameState(board, playerMove, playerAvatar);
 
 		// assert
 		assertTrue(gameState.getIsGameOver());
@@ -55,13 +56,13 @@ public class GameStateFactoryTest{
 	@Test
 	public void givenCertainComputerWin_createGameState_yieldsComputerWin() {
 		// arrange
-		var board = new String[] {"O","X","O","X","X","O","_","_","X"};
-		var factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
-		var playerAvatar = "X";
-		var expectedBoard = new String[] {"O","X","O","X","X","O","X","O","X"};
+		String[] board = new String[] {"O","X","O","X","X","O","_","_","X"};
+		GameStateFactory factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
+		String playerAvatar = "X";
+		String[] expectedBoard = new String[] {"O","X","O","X","X","O","X","O","X"};
 		
 		// act
-        var gameState = factory.getNextGameState(board, 6, playerAvatar);
+		GameState gameState = factory.getNextGameState(board, 6, playerAvatar);
         
         // assert
         assertTrue(gameState.getIsGameOver());
@@ -73,15 +74,15 @@ public class GameStateFactoryTest{
 	@Test
 	public void givenCertainStalemate_createGameState_yieldsStalemate() {
 		// arrange
-		var board = new String[] {"O","X","O","X","X","O","_","_","X"};
-		var factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
-		var playerAvatar = "X";
-		var expectedBoard = new String[] {"O","X","O","X","X","O","X","O","X"};
-		var playerTileNumber = 6;
-		var expectedComputerTileNumber = 7;
+		String[] board = new String[] {"O","X","O","X","X","O","_","_","X"};
+		GameStateFactory factory = new GameStateFactory(new RandomComputerStrategy(), new GameScoreKeeper());
+		String playerAvatar = "X";
+		String[] expectedBoard = new String[] {"O","X","O","X","X","O","X","O","X"};
+		int playerTileNumber = 6;
+		int expectedComputerTileNumber = 7;
 
 		// act
-		var gameState = factory.getNextGameState(board, playerTileNumber, playerAvatar);
+		GameState gameState = factory.getNextGameState(board, playerTileNumber, playerAvatar);
 
 		// assert
 		assertTrue(gameState.getIsGameOver());
@@ -94,19 +95,19 @@ public class GameStateFactoryTest{
 	@ValueSource(ints = {0, 1, 2, 3, 5, 6, 7, 8})
 	public void givenOpenMatch_createGameState_yieldsExpectedOpenState(int computerTileMove) {
 		// arrange
-		var board = getEmptyBoard();
-		var computerStrategy = new DebugComputerStrategy();
+		String[] board = getEmptyBoard();
+		DebugComputerStrategy computerStrategy = new DebugComputerStrategy();
 		computerStrategy.setNextTileNumber(computerTileMove);
-		var factory = new GameStateFactory(computerStrategy, new GameScoreKeeper());
-		var playerAvatar = "X";
-		var computerAvatar = "O";
-		var playerTileMove = 4;
-		var expectedBoard = getEmptyBoard();
+		GameStateFactory factory = new GameStateFactory(computerStrategy, new GameScoreKeeper());
+		String playerAvatar = "X";
+		String computerAvatar = "O";
+		int playerTileMove = 4;
+		String[] expectedBoard = getEmptyBoard();
 		expectedBoard[computerTileMove] = computerAvatar;
 		expectedBoard[playerTileMove] = playerAvatar;
 		
 		// act
-		var gameState = factory.getNextGameState(board, playerTileMove, playerAvatar);
+		GameState gameState = factory.getNextGameState(board, playerTileMove, playerAvatar);
 		
 		// assert
 		assertFalse(gameState.getIsGameOver());

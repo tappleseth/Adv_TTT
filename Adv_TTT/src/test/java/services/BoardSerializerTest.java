@@ -10,12 +10,12 @@ public class BoardSerializerTest{
 	@Test
 	public void givenBoard_serialize_returnsExpectedString() {
 		// arrange
-		var boardSerializer = new BoardSerializer();
-		var boardArray = new String[] {"x", "o", "x", "o","o","o","o","x","x"};
-		var expectedString = "x,o,x,o,o,o,o,x,x";
+		BoardSerializer boardSerializer = new BoardSerializer();
+		String[] boardArray = new String[] {"x", "o", "x", "o","o","o","o","x","x"};
+		String expectedString = "x,o,x,o,o,o,o,x,x";
 		
 		// act
-		var actualString = boardSerializer.serializeBoard(boardArray);
+		String actualString = boardSerializer.serializeBoard(boardArray);
 		
 		// assert
 		assertEquals(expectedString, actualString);

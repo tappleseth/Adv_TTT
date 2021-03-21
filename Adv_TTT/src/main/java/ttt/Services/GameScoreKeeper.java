@@ -24,7 +24,7 @@ public class GameScoreKeeper {
 		public boolean isGameWon() {
 			if (Math.abs(diag1) == _boardDimension || Math.abs(diag2) == _boardDimension)
 				return true;
-			for (var i = 0; i < _boardDimension; i++)
+			for (int i = 0; i < _boardDimension; i++)
 			{
 				if (Math.abs(rowScore[i]) == _boardDimension || Math.abs(colScore[i]) == _boardDimension)
 					return true;
@@ -34,8 +34,8 @@ public class GameScoreKeeper {
 	}
 	
 	public boolean hasWinner(String[] board) {
-		var boardDimension = (int)Math.sqrt(board.length);
-		var gameScore = new GameScore(boardDimension);
+		int boardDimension = (int)Math.sqrt(board.length);
+		GameScore gameScore = new GameScore(boardDimension);
 		for (int tile = 0; tile < board.length; tile++)
 			updateScore(board, gameScore, tile, boardDimension);
 		return gameScore.isGameWon();

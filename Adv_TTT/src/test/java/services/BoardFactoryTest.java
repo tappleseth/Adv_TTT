@@ -11,14 +11,14 @@ public class BoardFactoryTest{
 	@ValueSource(ints = {1,BoardFactory.DefaultDimension,4,5,9})
 	public void GivenDimensions_CreateGameBoard_YieldsExpectedArray(int dimension) {
 		// arrange
-		var expectedCellQty = dimension * dimension;
-		var expectedArray = new String[expectedCellQty];
-		var boardFactory = new BoardFactory();
-		for (var i = 0; i < expectedCellQty; i++)
+		int expectedCellQty = dimension * dimension;
+		String[] expectedArray = new String[expectedCellQty];
+		BoardFactory boardFactory = new BoardFactory();
+		for (int i = 0; i < expectedCellQty; i++)
 			expectedArray[i] = BoardFactory.EmptyCellCharacter;
 		
 		// act
-		var actualArray = boardFactory.CreateGameBoard(dimension);
+		String[] actualArray = boardFactory.CreateGameBoard(dimension);
 		
 		// assert
 		assertArrayEquals(expectedArray, actualArray);

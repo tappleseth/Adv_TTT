@@ -13,9 +13,9 @@ public class BoardFactory {
 	}
 	
 	public String[] CreateGameBoard(int dimension) {
-		var gameCells = dimension * dimension;
-		var gameBoard = new String[gameCells];
-        for (var i = 0; i < gameCells; i++){
+		int gameCells = dimension * dimension;
+		String[] gameBoard = new String[gameCells];
+        for (int i = 0; i < gameCells; i++){
         	gameBoard[i] = EmptyCellCharacter;
         }
         return gameBoard;

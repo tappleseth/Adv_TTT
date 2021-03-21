@@ -21,17 +21,17 @@ public class GameStateFactory{
 	
 	public GameState getNextGameState(String[] gameBoard, int nextTile, String currentPlayer) {
 		gameBoard[nextTile] = currentPlayer;
-		var gameOver = noMovesLeft(gameBoard) || _scoreKeeper.hasWinner(gameBoard);
-		var lastAvatar = currentPlayer;
-		var lastTile = nextTile;
+		boolean gameOver = noMovesLeft(gameBoard) || _scoreKeeper.hasWinner(gameBoard);
+		String lastAvatar = currentPlayer;
+		int lastTile = nextTile;
 		if (!gameOver) {
-			var computerTileMove = _computerStrategy.getNextTileNumber(gameBoard);
+			int computerTileMove = _computerStrategy.getNextTileNumber(gameBoard);
 			gameBoard[computerTileMove] = DefaultComputerAvatar;
 			lastAvatar = DefaultComputerAvatar;
 			lastTile = computerTileMove;
 		}
-		var winningAvatar = "";
-		var hasWinner = _scoreKeeper.hasWinner(gameBoard);
+		String winningAvatar = "";
+		boolean hasWinner = _scoreKeeper.hasWinner(gameBoard);
 		gameOver = noMovesLeft(gameBoard) || hasWinner;
 		if (hasWinner)
 			winningAvatar = lastAvatar;
@@ -39,7 +39,7 @@ public class GameStateFactory{
 	}
 	
 	private boolean noMovesLeft(String[] gameBoard) {
-		for (var i = 0; i < gameBoard.length; i++) {
+		for (int i = 0; i < gameBoard.length; i++) {
 			if (gameBoard[i].equals(BoardFactory.EmptyCellCharacter))
 				return false;
 		}

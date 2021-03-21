@@ -3,6 +3,7 @@ package ttt.Services;
 import org.springframework.stereotype.Service;
 
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.document.DynamoDB;
 import com.amazonaws.services.dynamodbv2.document.Item;
@@ -18,18 +19,18 @@ public class AmazonDataService{
 	private final Table _boardTable;
 	
 	public AmazonDataService() {
-		var client = AmazonDynamoDBClientBuilder.standard()
+		AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
     			.withRegion(Regions.US_EAST_1).build();
-	    var dynamoDB = new DynamoDB(client);
+	    DynamoDB dynamoDB = new DynamoDB(client);
 	    _configTable = dynamoDB.getTable("Records");
 	    _boardTable = dynamoDB.getTable("CheapTTT");
 	}
 	
 	public int addBoard(String gameBoard) {
 	
-    	var tableQueryCommand = new GetItemSpec().withPrimaryKey("ConfigID",1);
-    	var tableCell = _configTable.getItem(tableQueryCommand);
-    	var nextBoardId = 1 + tableCell.getInt("GamesPlayed");
+    	GetItemSpec tableQueryCommand = new GetItemSpec().withPrimaryKey("ConfigID",1);
+    	Item tableCell = _configTable.getItem(tableQueryCommand);
+    	int nextBoardId = 1 + tableCell.getInt("GamesPlayed");
     	
     	UpdateItemSpec uSpec = new UpdateItemSpec().withPrimaryKey("ConfigID",1)
     			.withUpdateExpression("set GamesPlayed = :a")
@@ -46,15 +47,15 @@ public class AmazonDataService{
 	}
 	
 	public void updateBoard(int boardId, String gameBoard) {
-    	var updateItemCommand = new UpdateItemSpec().withPrimaryKey("BoardID", boardId)
+    	UpdateItemSpec updateItemCommand = new UpdateItemSpec().withPrimaryKey("BoardID", boardId)
     			.withUpdateExpression("set BoardStatus = :a")
     			.withValueMap(new ValueMap().withString(":a", gameBoard));
     	_boardTable.updateItem(updateItemCommand);
 	}
 	
 	public String getBoardStatus(int boardId) {
-		var boardQuery = new GetItemSpec().withPrimaryKey("BoardID", boardId);
-    	var boardItem = _boardTable.getItem(boardQuery);
+		GetItemSpec boardQuery = new GetItemSpec().withPrimaryKey("BoardID", boardId);
+    	Item boardItem = _boardTable.getItem(boardQuery);
     	return boardItem.getString("BoardStatus");
 	}
 }

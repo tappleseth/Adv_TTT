@@ -13,7 +13,7 @@ public class BoardUpdater{
 	}
 	
 	public void updateBoard(int boardId, String[] gameBoard) {
-		var boardString = _boardSerializer.serializeBoard(gameBoard);
+		String boardString = _boardSerializer.serializeBoard(gameBoard);
 		_dataService.updateBoard(boardId, boardString);
 	}
 }

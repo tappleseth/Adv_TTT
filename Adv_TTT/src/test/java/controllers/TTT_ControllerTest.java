@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 
 
 import ttt.Controllers.TTT_Controller;
+import ttt.Model.MoveResponse;
 import ttt.Services.*;
 
 public class TTT_ControllerTest{
@@ -19,11 +20,11 @@ public class TTT_ControllerTest{
 	@Test
 	public void GivenFinalPlayerMove_MoveResponse_IsPlayerWins() {
 		// arrange
-		var board = "O,X,O,O,X,O,_,_,_";
-		var controller = GetControllerForBoard(board);
+		String board = "O,X,O,O,X,O,_,_,_";
+		TTT_Controller controller = GetControllerForBoard(board);
 		
 		// act
-		var response = controller.board(String.valueOf(_gameId), "7", 'X');
+		MoveResponse response = controller.board(String.valueOf(_gameId), "7", 'X');
 		
 		// assert
 		assertTrue(response.getIsValid());
@@ -34,11 +35,11 @@ public class TTT_ControllerTest{
 	@Test
 	public void GivenFinalOpponentMove_MoveResponse_IsComputerWins() {
 		// arrange
-		var board = "O,X,X,O,X,O,_,O,_";
-		var controller = GetControllerForBoard(board);
+		String board = "O,X,X,O,X,O,_,O,_";
+		TTT_Controller controller = GetControllerForBoard(board);
 		
 		// act
-		var response = controller.board(String.valueOf(_gameId), "8", 'X');
+		MoveResponse response = controller.board(String.valueOf(_gameId), "8", 'X');
 		
 		// assert
 		assertTrue(response.getIsValid());
@@ -49,11 +50,11 @@ public class TTT_ControllerTest{
 	@Test
 	public void GivenOpenMove_MoveResponse_IsIndecisive() {
 		// arrange
-		var board = "O,_,_,_,_,_,_,_,_";
-		var controller = GetControllerForBoard(board);
+		String board = "O,_,_,_,_,_,_,_,_";
+		TTT_Controller controller = GetControllerForBoard(board);
 		
 		// act
-		var response = controller.board(String.valueOf(_gameId), "3", 'X');
+		MoveResponse response = controller.board(String.valueOf(_gameId), "3", 'X');
 		
 		// assert
 		assertEquals("", response.getWinner());
@@ -64,11 +65,11 @@ public class TTT_ControllerTest{
 	@Test
 	public void GivenInvalidMove_MoveReponse_IsRecognizedAsInvalid() {
 		// arrange
-		var board = "O,_,_,_,_,_,_,_,_";
-		var controller = GetControllerForBoard(board);
+		String board = "O,_,_,_,_,_,_,_,_";
+		TTT_Controller controller = GetControllerForBoard(board);
 				
 		// act
-		var response = controller.board(String.valueOf(_gameId), "19", 'X');
+		MoveResponse response = controller.board(String.valueOf(_gameId), "19", 'X');
 				
 		// assert
 		assertEquals("", response.getWinner());
@@ -77,11 +78,11 @@ public class TTT_ControllerTest{
 	}
 	
 	private TTT_Controller GetControllerForBoard(String board) {
-		var dataService = mock(AmazonDataService.class);
+		AmazonDataService dataService = mock(AmazonDataService.class);
 		when(dataService.addBoard(Mockito.any(String.class))).thenReturn(_gameId);
 		when(dataService.getBoardStatus(_gameId)).thenReturn(board);
-		var serializer = new BoardSerializer();
-		var gameStateFactory = new GameStateFactory(
+		BoardSerializer serializer = new BoardSerializer();
+		GameStateFactory gameStateFactory = new GameStateFactory(
 				new RandomComputerStrategy(),
 				new GameScoreKeeper());
 		return new TTT_Controller(

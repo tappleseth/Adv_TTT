@@ -10,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import ttt.Model.GameState;
+import ttt.Model.MoveResponse;
 import ttt.Services.MoveResponseFactory;
 
 public class MoveResponseFactoryTest{
@@ -17,10 +18,10 @@ public class MoveResponseFactoryTest{
 	@ValueSource(strings = {"example1", "example2"})
 	public void givenErrorMessage_fromError_yieldsResponse(String errorMessage) {
 		// arrange
-		var factory = new MoveResponseFactory();
+		MoveResponseFactory factory = new MoveResponseFactory();
 		
 		// act
-		var response = factory.fromError(errorMessage);
+		MoveResponse response = factory.fromError(errorMessage);
 		
 		// assert
 		assertFalse(response.getIsValid());
@@ -30,14 +31,14 @@ public class MoveResponseFactoryTest{
 	@Test
 	public void givenGameState_fromGateState_yieldsResponse() {
 		// arrange
-		var factory = new MoveResponseFactory();
-		var lastTileNumber = 7;
-		var lastAvatar = "X";
-		var board = new String[] {"O","X","O","X","X","O","O","X","X"};
-		var gameState = new GameState(7, lastAvatar, true, lastAvatar, board);
+		MoveResponseFactory factory = new MoveResponseFactory();
+		int lastTileNumber = 7;
+		String lastAvatar = "X";
+		String[] board = new String[] {"O","X","O","X","X","O","O","X","X"};
+		GameState gameState = new GameState(7, lastAvatar, true, lastAvatar, board);
 				
 		// act
-		var response = factory.fromGameState(gameState);
+		MoveResponse response = factory.fromGameState(gameState);
 		
 		// assert
 		assertTrue(response.getIsValid());

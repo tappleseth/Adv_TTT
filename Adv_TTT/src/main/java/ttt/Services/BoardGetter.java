@@ -14,8 +14,8 @@ public class BoardGetter{
 	}
 	
 	public String[] getBoardFromDataService(int boardId) {
-		var boardString = _dataService.getBoardStatus(boardId);
-    	var board = _deserializer.deserializeBoard(boardString);
+		String boardString = _dataService.getBoardStatus(boardId);
+    	String[] board = _deserializer.deserializeBoard(boardString);
     	return board;
 	}
 }

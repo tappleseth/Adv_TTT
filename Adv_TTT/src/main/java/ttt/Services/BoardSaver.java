@@ -15,7 +15,7 @@ public class BoardSaver
 	
 	public int saveBoardToDataService(String[] board, String avatar) {
 		String boardStr = _boardSerializer.serializeBoard(board);
-	    var nextBoardId = _dataService.addBoard(boardStr);
+	    int nextBoardId = _dataService.addBoard(boardStr);
 	    return nextBoardId;
 	}
 }
